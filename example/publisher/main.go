@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Vipatra/celerygo"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/Vipatra/celerygo"
+	"github.com/google/uuid"
 )
 
 var wg sync.WaitGroup
@@ -56,10 +58,12 @@ func worker(ctx context.Context, client celerygo.CeleryClient, wg *sync.WaitGrou
 		default:
 			time.Sleep(1000 * time.Millisecond)
 			log.Println("sending message")
+			traceId := uuid.New().String()
 			_, err := client.SendCeleryTask(context.Background(), "long_tasks.process_portfolio_jobs", nil, map[string]any{
 				"org_id": 798798,
 			}, &celerygo.AdditionalParameters{
 				CountdownSeconds: celerygo.Ptr(0),
+				CorrelationId:    &traceId,
 			})
 			if err != nil {
 				log.Println(fmt.Errorf("send task failed: %w", err))

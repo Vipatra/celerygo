@@ -10,22 +10,24 @@ type Message struct {
 }
 
 type Headers struct {
-	Lang                string         `json:"lang"`
-	Task                string         `json:"task"`
-	ID                  string         `json:"id"`
-	RootID              string         `json:"root_id"`
-	ParentID            *string        `json:"parent_id"`
-	Group               *string        `json:"group"`
-	Method              *string        `json:"meth,"`
-	Shadow              *string        `json:"shadow,"`
-	ETA                 *string        `json:"eta,"`
-	Expires             *string        `json:"expires,"`
-	Retries             *int           `json:"retries,"`
-	TimeLimit           *[]interface{} `json:"timelimit,"`
-	ArgsRepr            string         `json:"argsrepr,"`
-	KWArgsRepr          string         `json:"kwargsrepr,"`
-	Origin              string         `json:"origin,"`
-	ReplacedTaskNesting *int           `json:"replaced_task_nesting,"`
+	Lang                string        `json:"lang"`
+	Task                string        `json:"task"`
+	ID                  string        `json:"id"`
+	RootID              string        `json:"root_id"`
+	ParentID            *string       `json:"parent_id"`
+	Group               *string       `json:"group"`
+	Method              *string       `json:"meth,"`
+	Shadow              *string       `json:"shadow,"`
+	ETA                 *string       `json:"eta,"`
+	Expires             *string       `json:"expires,"`
+	Retries             *int          `json:"retries,"`
+	TimeLimit           []interface{} `json:"timelimit,"`
+	ArgsRepr            string        `json:"argsrepr,"`
+	KWArgsRepr          string        `json:"kwargsrepr,"`
+	Origin              string        `json:"origin,"`
+	ReplacedTaskNesting *int          `json:"replaced_task_nesting,"`
+	// CorrelationId - Added as an additional field to trace the flow of request. By default, celery-go extracts from context value (CorrelationIdKey). Capitalized to prevent clash with correlation_id of AMQP
+	CorrelationId string `json:"CORRELATION_ID"`
 }
 type Body struct {
 	Args   []interface{}          `json:"args"`
@@ -75,6 +77,8 @@ type AdditionalParameters struct {
 	ContentType         *string       `json:"content_type"`
 	ContentEncoding     *string       `json:"content_encoding"`
 	Language            *string       `json:"language"`
+	// CorrelationId - Added as an additional field to trace the flow of task. By default, celery-go extracts from context value (CorrelationIdKey). Capitalized to prevent clash with correlation_id of AMQP
+	CorrelationId *string `json:"CORRELATION_ID"`
 }
 
 func (i *AdditionalParameters) GetContentType() string {

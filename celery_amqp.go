@@ -177,7 +177,7 @@ func (c *CeleryAMQPClient) SendCeleryTask(ctx context.Context, task string, args
 	if additionalParams == nil {
 		additionalParams = &AdditionalParameters{}
 	}
-	message, err := c.prepareMessage(task, args, kwArgs, additionalParams)
+	message, err := c.prepareMessage(ctx, task, args, kwArgs, additionalParams)
 	if err != nil {
 		logrus.Infof("Failed to prepare message : %s", err)
 		return nil, err
@@ -218,9 +218,10 @@ func (c *CeleryAMQPClient) RegisterRoutes(routes map[string]string) {
 
 // prepareMessage - Prepares message based on celery 2.0 protocol
 // If taskId is supplied
-func (*CeleryAMQPClient) prepareMessage(task string, args []interface{}, kwArgs map[string]any, params *AdditionalParameters) (*Message, error) {
+func (*CeleryAMQPClient) prepareMessage(ctx context.Context, task string, args []interface{}, kwArgs map[string]any, params *AdditionalParameters) (*Message, error) {
 	var taskId string
 	var expiry *string = nil
+	var correlationId string
 
 	if params == nil {
 		params = &AdditionalParameters{}
@@ -262,6 +263,12 @@ func (*CeleryAMQPClient) prepareMessage(task string, args []interface{}, kwArgs 
 		expiry = Ptr(now.Add(time.Duration(*params.ExpiresSeconds) * time.Second).Format(ISO8601))
 	}
 
+	if params.CorrelationId != nil {
+		correlationId = *params.CorrelationId
+	} else {
+		correlationId = GetCtxValueString(ctx, CorrelationIdKey)
+	}
+
 	headers := Headers{
 		Lang:                params.GetConsumerLanguage(),
 		Task:                task,
@@ -274,11 +281,12 @@ func (*CeleryAMQPClient) prepareMessage(task string, args []interface{}, kwArgs 
 		ETA:                 params.Eta,
 		Expires:             expiry,
 		Retries:             Ptr(params.Retries),
-		TimeLimit:           Ptr(params.TimeLimit),
+		TimeLimit:           params.TimeLimit,
 		ArgsRepr:            string(argsBytes),
 		KWArgsRepr:          string(kwArgBytes),
 		Origin:              origin,
 		ReplacedTaskNesting: Ptr(params.ReplacedTaskNesting),
+		CorrelationId:       correlationId,
 	}
 
 	body := Body{

@@ -14,6 +14,7 @@ const (
 	AMQP                    = "amqp"
 	baseSleepDuration       = 100 * time.Millisecond
 	defaultChannel          = "celery"
+	CorrelationIdKey        = "trace_id"
 )
 
 type LogLevel logrus.Level

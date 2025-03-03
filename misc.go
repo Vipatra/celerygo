@@ -1,6 +1,7 @@
 package celerygo
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -37,4 +38,13 @@ func GetBodyTuple(body Body) ([]interface{}, error) {
 		return nil, err
 	}
 	return []interface{}{body.Args, body.Kwargs, embedMap}, nil
+}
+
+func GetCtxValueString(ctx context.Context, key string) string {
+	v := ctx.Value(key)
+	stringVal, ok := v.(string)
+	if !ok {
+		return ""
+	}
+	return stringVal
 }
