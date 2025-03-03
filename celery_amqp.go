@@ -266,7 +266,7 @@ func (*CeleryAMQPClient) prepareMessage(ctx context.Context, task string, args [
 	if params.CorrelationId != nil {
 		correlationId = *params.CorrelationId
 	} else {
-		correlationId = GetCtxValueString(ctx, correlationIdKey)
+		correlationId = GetCtxValueString(ctx, CorrelationIdKey)
 	}
 
 	headers := Headers{
