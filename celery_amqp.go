@@ -281,7 +281,7 @@ func (*CeleryAMQPClient) prepareMessage(ctx context.Context, task string, args [
 		ETA:                 params.Eta,
 		Expires:             expiry,
 		Retries:             Ptr(params.Retries),
-		TimeLimit:           Ptr(params.TimeLimit),
+		TimeLimit:           params.TimeLimit,
 		ArgsRepr:            string(argsBytes),
 		KWArgsRepr:          string(kwArgBytes),
 		Origin:              origin,
